@@ -1,0 +1,38 @@
+def dai_avail(territory, start_date, end_date, creative, r_targeting):
+    region = None 
+    if territory == 1:
+        region = ['Canada']
+    elif territory == 2: 
+        region =['DACH']
+    elif territory == 3:
+        region == ['Japan']
+    elif territory == 4: 
+        region = ['Italy']
+    elif territory == 5: 
+        region = ['Spain']
+    elif territory == 6:
+        region = ['USA']
+        
+    sport_event = None
+    if r_targeting == 1:
+        sport_event = ['Bundesliga']
+    elif r_targeting == 2:
+        sport_event = ['UEFA Champions League']
+    elif r_targeting == 3:
+        sport_event = ['UEFA Champions League', 'Bundesliga']
+    else:
+        sport_event = grouped_data['FixtureSportEvent'].unique()
+        
+
+    data = grouped_data.loc[
+        (grouped_data['FixtureDate'] >= start_date) &
+        (grouped_data['FixtureDate'] <= end_date) &
+        (grouped_data['FixtureSportEvent'].isin(sport_event)) & 
+        (grouped_data['AdRegion'].isin(region))
+    ]
+
+    data_1 = data[data['TotalAirtimeAvailable'] >= creative]
+    data_2 = data_1.groupby('FixtureDate')['Avails_per_slot'].sum().round()
+    total_avail = data_2.sum()
+    print("Total Available Inventory = " + str(round(data_2.sum())))
+    return total_avail
