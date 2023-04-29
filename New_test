@@ -1,0 +1,52 @@
+def dai_target(territory,start_date, end_date, creative, booked_AI, r_targeting):
+    data_0 = grouped_data
+    region = None 
+    if territory == 1:
+        region = ['Canada']
+    elif territory == 2: 
+        region =['DACH']
+    elif territory == 3:
+        region == ['Japan']
+    elif territory == 4: 
+        region = ['Italy']
+    elif territory == 5: 
+        region = ['Spain']
+    elif territory == 6:
+        region = ['USA']
+    sport_event = None
+    if r_targeting == 1:
+        sport_event = ['Bundesliga']
+    elif r_targeting == 2:
+        sport_event = ['UEFA Champions League']
+    elif r_targeting == 3:
+        sport_event = ['UEFA Champions League', 'Bundesliga']
+    else:
+        sport_event = grouped_data['FixtureSportEvent'].unique()
+
+    data = data_0.loc[
+        (data_0['FixtureDate'] >= start_date) &
+        (data_0['FixtureDate'] <= end_date) &
+        (data_0['FixtureSportEvent'].isin(sport_event)) & 
+        (data_0['AdRegion'].isin(region))
+    ]
+
+
+    data1 = data[data['TotalAirtimeAvailable'] >= creative]            
+    data1['DAI_IMPRESSIONS_BOOKED'] = (
+        (booked_AI * (creative/15)) * 
+        (data1['Avails_per_slot'] / data1['Avails_per_slot'].sum())
+    )
+    data_0['DAI_IMPRESSIONS_BOOKED'] += data1['DAI_IMPRESSIONS_BOOKED'].round()
+    data_0 = data_0.assign(
+        Perc_of_slot=data_0['DAI_IMPRESSIONS_BOOKED'] / data_0['Avails_per_slot'] )
+#   if not data1['DAI_IMPRESSIONS_BOOKED'].empty and not data1['Avails_per_slot'].empty:
+#       if data1['DAI_IMPRESSIONS_BOOKED'].item() > data1['Avails_per_slot'].item():
+#           diff = data1['DAI_IMPRESSIONS_BOOKED'].item() - data1['Avails_per_slot'].item()
+#           row['DAI_IMPRESSIONS_BOOKED'] = diff
+#           row['AVAILABLE_DAI_SLOT'] -= 1 
+#    
+
+    data_0.fillna(0, inplace=True)
+    return data_0[
+        ['AdRegion','FixtureDescription', 'AdBreakUuid','DAI_IMPRESSIONS_AVAILABLE','DAI_IMPRESSIONS_BOOKED', 
+         'Avails_per_slot', 'AVAILABLE_DAI_SLOT']]
