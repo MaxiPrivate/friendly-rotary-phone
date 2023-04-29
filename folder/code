@@ -1,3 +1,5 @@
+import pandas as pd 
+
 def dai_avail(territory, start_date, end_date, creative, r_targeting):
     region = None 
     if territory == 1:
